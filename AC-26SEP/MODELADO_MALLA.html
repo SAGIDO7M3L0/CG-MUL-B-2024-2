@@ -12,17 +12,16 @@
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Configuración de la escena, cámara y renderizador
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Crear materiales con colores
-        const cuboMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Rojo
-        const esferaMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Verde
-        const conoMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Azul
+        // Crear materiales
+        const cuboMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const esferaMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const conoMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
 
         // Crear geometrías
         const cuboGeometry = new THREE.BoxGeometry(1, 1, 1);
@@ -34,54 +33,90 @@
         const esfera = new THREE.Mesh(esferaGeometry, esferaMaterial);
         const cono = new THREE.Mesh(conoGeometry, conoMaterial);
 
-        // Posicionar objetos en la escena
+        // Posicionar objetos
         cubo.position.x = -2;
         esfera.position.x = 2;
         cono.position.x = 0;
 
-        // Agregar objetos a la escena
         scene.add(cubo);
         scene.add(esfera);
         scene.add(cono);
 
-        // Cargar textura para el cubo
         const textureLoader = new THREE.TextureLoader();
         textureLoader.load('ruta/a/tu/textura.jpg', (texture) => {
             cubo.material.map = texture;
-            cubo.material.needsUpdate = true; // Necesario para aplicar la textura
+            cubo.material.needsUpdate = true;
         });
+camera.position.z = 5;
 
-        // Configurar la posición de la cámara
-        camera.position.z = 5;
+        // Variables para movimiento
+        const speed = 0.05;
+        const directions = [new THREE.Vector3(speed, speed, 0), new THREE.Vector3(-speed, speed, 0), new THREE.Vector3(speed, -speed, 0), new THREE.Vector3(-speed, -speed, 0)];
 
-        // Función de animación
+        // Asignar dirección aleatoria a cada objeto
+        cubo.direction = directions[Math.floor(Math.random() * directions.length)];
+        esfera.direction = directions[Math.floor(Math.random() * directions.length)];
+        cono.direction = directions[Math.floor(Math.random() * directions.length)];
+
+        // Función para cambiar color
+        function getRandomColor() {
+            return Math.floor(Math.random() * 16777215);
+        }
+
+        // Click en objetos
+        function onClick(event) {
+            // Convertir coordenadas del mouse a coordenadas de la escena
+            const mouse = new THREE.Vector2(
+                (event.clientX / window.innerWidth) * 2 - 1,
+                -(event.clientY / window.innerHeight) * 2 + 1
+            );
+
+            // Raycaster
+            const raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects([cubo, esfera, cono]);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                object.material.color.setHex(getRandomColor()); // Cambia el color
+                object.direction = directions[Math.floor(Math.random() * directions.length)]; // Cambia la dirección
+            }
+        }
+
+        // Animación
         function animate() {
             requestAnimationFrame(animate);
 
-            // Rotar y mover objetos
-            cubo.rotation.x += 0.01;
-            cubo.rotation.y += 0.01;
-            cubo.position.x += Math.sin(Date.now() * 0.001) * 0.01;
+            [cubo, esfera, cono].forEach(object => {
+                object.rotation.x += 0.02;
+                object.rotation.y += 0.02;
 
-            esfera.rotation.x += 0.02;
-            esfera.rotation.y += 0.02;
-            esfera.position.y += Math.cos(Date.now() * 0.001) * 0.01;
+                // Mover objeto
+                object.position.add(object.direction);
 
-            cono.rotation.x += 0.03;
-            cono.rotation.y += 0.03;
-            cono.position.z += Math.sin(Date.now() * 0.001) * 0.01;
+                // Verificar colisiones con el muro invisible
+                if (Math.abs(object.position.x) > 4) {
+                    object.direction.x *= -1;
+                }
+                if (Math.abs(object.position.y) > 4) {
+                    object.direction.y *= -1;
+                }
+            });
 
             renderer.render(scene, camera);
         }
 
-        animate();
-
+        // Agregar listener para el clic
+        window.addEventListener('click', onClick);
+        
         // Manejo del redimensionamiento de la ventana
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        animate();
     </script>
 </body>
 </html>
