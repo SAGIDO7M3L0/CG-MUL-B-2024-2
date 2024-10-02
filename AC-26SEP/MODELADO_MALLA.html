@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Ejemplo</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Configuración de la escena, cámara y renderizador
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Crear materiales con colores
+        const cuboMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Rojo
+        const esferaMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Verde
+        const conoMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff }); // Azul
+
+        // Crear geometrías
+        const cuboGeometry = new THREE.BoxGeometry(1, 1, 1);
+        const esferaGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+        const conoGeometry = new THREE.ConeGeometry(0.5, 1, 32);
+
+        // Crear mallas
+        const cubo = new THREE.Mesh(cuboGeometry, cuboMaterial);
+        const esfera = new THREE.Mesh(esferaGeometry, esferaMaterial);
+        const cono = new THREE.Mesh(conoGeometry, conoMaterial);
+
+        // Posicionar objetos en la escena
+        cubo.position.x = -2;
+        esfera.position.x = 2;
+        cono.position.x = 0;
+
+        // Agregar objetos a la escena
+        scene.add(cubo);
+        scene.add(esfera);
+        scene.add(cono);
+
+        // Cargar textura para el cubo
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load('ruta/a/tu/textura.jpg', (texture) => {
+            cubo.material.map = texture;
+            cubo.material.needsUpdate = true; // Necesario para aplicar la textura
+        });
+
+        // Configurar la posición de la cámara
+        camera.position.z = 5;
+
+        // Función de animación
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotar y mover objetos
+            cubo.rotation.x += 0.01;
+            cubo.rotation.y += 0.01;
+            cubo.position.x += Math.sin(Date.now() * 0.001) * 0.01;
+
+            esfera.rotation.x += 0.02;
+            esfera.rotation.y += 0.02;
+            esfera.position.y += Math.cos(Date.now() * 0.001) * 0.01;
+
+            cono.rotation.x += 0.03;
+            cono.rotation.y += 0.03;
+            cono.position.z += Math.sin(Date.now() * 0.001) * 0.01;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Manejo del redimensionamiento de la ventana
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
