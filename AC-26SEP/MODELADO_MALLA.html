@@ -47,11 +47,17 @@
             cubo.material.map = texture;
             cubo.material.needsUpdate = true;
         });
-camera.position.z = 5;
+
+        camera.position.z = 5;
 
         // Variables para movimiento
-        const speed = 0.05;
-        const directions = [new THREE.Vector3(speed, speed, 0), new THREE.Vector3(-speed, speed, 0), new THREE.Vector3(speed, -speed, 0), new THREE.Vector3(-speed, -speed, 0)];
+        const speed = 0.02; // Reducción de la velocidad
+        const directions = [
+            new THREE.Vector3(speed, speed, 0),
+            new THREE.Vector3(-speed, speed, 0),
+            new THREE.Vector3(speed, -speed, 0),
+            new THREE.Vector3(-speed, -speed, 0)
+        ];
 
         // Asignar dirección aleatoria a cada objeto
         cubo.direction = directions[Math.floor(Math.random() * directions.length)];
@@ -65,22 +71,25 @@ camera.position.z = 5;
 
         // Click en objetos
         function onClick(event) {
-            // Convertir coordenadas del mouse a coordenadas de la escena
             const mouse = new THREE.Vector2(
                 (event.clientX / window.innerWidth) * 2 - 1,
                 -(event.clientY / window.innerHeight) * 2 + 1
             );
 
-            // Raycaster
             const raycaster = new THREE.Raycaster();
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects([cubo, esfera, cono]);
-
-            if (intersects.length > 0) {
+if (intersects.length > 0) {
                 const object = intersects[0].object;
                 object.material.color.setHex(getRandomColor()); // Cambia el color
                 object.direction = directions[Math.floor(Math.random() * directions.length)]; // Cambia la dirección
             }
+        }
+
+        // Función para verificar colisiones
+        function checkCollision(objA, objB) {
+            const distance = objA.position.distanceTo(objB.position);
+            return distance < 1; // Ajusta el valor según el tamaño de los objetos
         }
 
         // Animación
@@ -101,12 +110,31 @@ camera.position.z = 5;
                 if (Math.abs(object.position.y) > 4) {
                     object.direction.y *= -1;
                 }
+
+                // Verificar colisiones entre objetos
+                if (checkCollision(cubo, esfera)) {
+                    cubo.direction.x *= -1;
+                    esfera.direction.x *= -1;
+                    cubo.direction.y *= -1;
+                    esfera.direction.y *= -1;
+                }
+                if (checkCollision(cubo, cono)) {
+                    cubo.direction.x *= -1;
+                    cono.direction.x *= -1;
+                    cubo.direction.y *= -1;
+                    cono.direction.y *= -1;
+                }
+                if (checkCollision(esfera, cono)) {
+                    esfera.direction.x *= -1;
+                    cono.direction.x *= -1;
+                    esfera.direction.y *= -1;
+                    cono.direction.y *= -1;
+                }
             });
 
             renderer.render(scene, camera);
         }
 
-        // Agregar listener para el clic
         window.addEventListener('click', onClick);
         
         // Manejo del redimensionamiento de la ventana
