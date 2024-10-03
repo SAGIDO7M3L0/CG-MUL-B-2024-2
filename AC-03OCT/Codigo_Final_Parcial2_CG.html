@@ -32,8 +32,8 @@
                 const material = new THREE.LineBasicMaterial({ color: 0xffffff }); // Color blanco para el wireframe
                 const wireframe = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), material); // Crear la malla de bordes
 
-                // Posicionar cubos en línea
-                wireframe.position.x = i * spacing; // Alinear cubos
+                // Calcular la posición en el centro
+                wireframe.position.x = (i - (numberOfCubes - 1) / 2) * spacing; // Alinear cubos en el centro
                 scene.add(wireframe);
                 cubes.push(wireframe); // Guardar el cubo en el array
             }
