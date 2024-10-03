@@ -10,7 +10,8 @@
     </style>
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script>
         // Configuración de la escena, cámara y renderizador
         const scene = new THREE.Scene();
@@ -29,8 +30,8 @@
 
             for (let i = 0; i < numberOfCubes; i++) {
                 const geometry = new THREE.BoxGeometry(1, 1, 1); // Cubo
-                const material = new THREE.LineBasicMaterial({ color: 0xffffff }); // Color blanco para el wireframe
-                const wireframe = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), material); // Crear la malla de bordes
+                const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true }); // Material para wireframe
+                const wireframe = new THREE.Mesh(geometry, material); // Crear la malla de cubo
 
                 // Calcular la posición en el centro
                 wireframe.position.x = (i - (numberOfCubes - 1) / 2) * spacing; // Alinear cubos en el centro
@@ -45,6 +46,11 @@
         // Posicionar la cámara
         camera.position.z = 5;
 
+        // Añadir OrbitControls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Habilitar el suavizado
+        controls.dampingFactor = 0.25; // Factor de suavizado
+
         // Función de animación
         function animate() {
             requestAnimationFrame(animate);
@@ -52,10 +58,18 @@
                 cube.rotation.x += 0.01; // Rotación en el eje X
                 cube.rotation.y += 0.01; // Rotación en el eje Y
             });
+            controls.update(); // Actualizar controles
             renderer.render(scene, camera);
         }
 
         animate();
+
+        // Listener para resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
