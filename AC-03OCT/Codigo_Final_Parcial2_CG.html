@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo de Three.js</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Configuración de la escena, cámara y renderizador
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Array para almacenar los cubos
+        const cubes = [];
+
+        // Crear una función para generar cubos
+        function createCubes() {
+            const numberOfCubes = Math.floor(Math.random() * 5) + 1; // Generar un número aleatorio entre 1 y 5
+            const spacing = 2; // Espaciado entre cubos
+
+            for (let i = 0; i < numberOfCubes; i++) {
+                const geometry = new THREE.BoxGeometry(1, 1, 1); // Cubo
+                const material = new THREE.LineBasicMaterial({ color: 0xffffff }); // Color blanco para el wireframe
+                const wireframe = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), material); // Crear la malla de bordes
+
+                // Posicionar cubos en línea
+                wireframe.position.x = i * spacing; // Alinear cubos
+                scene.add(wireframe);
+                cubes.push(wireframe); // Guardar el cubo en el array
+            }
+        }
+
+        // Llamar a la función para crear cubos
+        createCubes();
+
+        // Posicionar la cámara
+        camera.position.z = 5;
+
+        // Función de animación
+        function animate() {
+            requestAnimationFrame(animate);
+            cubes.forEach(cube => {
+                cube.rotation.x += 0.01; // Rotación en el eje X
+                cube.rotation.y += 0.01; // Rotación en el eje Y
+            });
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
